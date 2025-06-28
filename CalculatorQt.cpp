@@ -1,12 +1,17 @@
 #include "CalculatorQt.h"
-#include <QDebug>
 #include <iostream>
+#include <QDebug>
 #include <QMessageBox>
+#include <QLineEdit>
+#include <QIntValidator>
 
 CalculatorQt::CalculatorQt(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
+    QIntValidator* intValidator = new QIntValidator(0, 999999, this);
+    ui.output->setValidator(intValidator);
+
     connect(ui.btnZero, &QPushButton::clicked, this, &CalculatorQt::handleDigitClicked);
     connect(ui.btnOne, &QPushButton::clicked, this, &CalculatorQt::handleDigitClicked);
     connect(ui.btnTwo, &QPushButton::clicked, this, &CalculatorQt::handleDigitClicked);
@@ -21,8 +26,12 @@ CalculatorQt::CalculatorQt(QWidget *parent)
 
     connect(ui.btnAddition, &QPushButton::clicked, this, &CalculatorQt::handleOperatorClicked);
     connect(ui.btnSubtraction, &QPushButton::clicked, this, &CalculatorQt::handleOperatorClicked);
-    
     connect(ui.btnEqual, &QPushButton::clicked, this, &CalculatorQt::handleEqualClicked);
+    connect(ui.btnPercent, &QPushButton::clicked, this, &CalculatorQt::handleOperatorClicked);
+    connect(ui.btnMultiplication, &QPushButton::clicked, this, &CalculatorQt::handleOperatorClicked);
+    connect(ui.btnDivition, &QPushButton::clicked, this, &CalculatorQt::handleOperatorClicked);
+    
+
     connect(ui.btnClear, &QPushButton::clicked, this, &CalculatorQt::handleClearClicked);
 
     ui.output->setAlignment(Qt::AlignRight);
@@ -35,7 +44,7 @@ CalculatorQt::~CalculatorQt()
 void CalculatorQt::handleDigitClicked() {
     QPushButton* button = qobject_cast<QPushButton*>(sender());
     
-    if (!button) return;
+    if (!button || currentInput.length() >= 12) return;
     if (currentInput == "0") currentInput.clear();
 
     currentInput += button->text();
@@ -66,6 +75,15 @@ void CalculatorQt::handleEqualClicked() {
     }
     else if (pendingOperator == "-") {
         result = storeValue - operand2;
+    }
+    else if (pendingOperator == "x") {
+        result = storeValue * operand2;
+    }
+    else if (pendingOperator == "/") {
+        result = storeValue / operand2;
+    }
+    else if (pendingOperator == "%") {
+        result = (storeValue / 100) * operand2;
     }
     
 
